@@ -1,0 +1,16 @@
+[Unit]
+Description=Haproxy Config Service
+After=haproxy.service
+BindTo=docker.service
+
+[Service]
+EnvironmentFile=/etc/environment
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill haproxy-config
+ExecStartPre=-/usr/bin/docker rm haproxy-config
+ExecStartPre=/usr/bin/docker pull mimperatore/docker-haproxy-config
+ExecStart=/usr/bin/docker run --name haproxy-config --volumes_from=haproxy -e ETCD_ENDPOINT=${COREOS_PRIVATE_IPV4}:4001 mimperatore/docker-haproxy-config
+ExecStop=/usr/bin/docker stop haproxy-config
+
+[X-Fleet]
+Global=true
