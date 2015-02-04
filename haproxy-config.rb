@@ -42,7 +42,7 @@ end
 
 def get_port_groups
   response = JSON.load(`curl -sL "#{BASE_URL}" -XGET`)
-  valid_port_groups(leaves_of(response['node']).group_by { |p| p['private_port'] })
+  valid_port_groups(leaves_of(response['node']).group_by { |p| p['private_port'] }) if response && response['node']
 end
 
 def rebuild_config(port_groups)
@@ -60,7 +60,7 @@ $port_groups = {}
 loop do
   response = JSON.load(`curl -sL -m 60 "#{BASE_URL}&wait=true" -XGET`)
   port_groups = get_port_groups
-  if port_groups != $port_groups
+  if port_groups && port_groups != $port_groups
     $port_groups = port_groups
     rebuild_config($port_groups)
   end
